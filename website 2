@@ -1,1 +1,4341 @@
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
+import Home from "./pages/Home";
+import GameCenter from "./pages/GameCenter";
+import PremiumGameCenter from "./pages/PremiumGameCenter";
+import MobileGames from "./pages/MobileGames";
+import Eaglercraft from "./pages/Eaglercraft";
+import AdminConsole from "./pages/AdminConsole";
+
+export default function App() {
+  return (
+    <Router>
+      <div className="min-h-screen flex flex-col bg-black text-white">
+
+        {/* NAVBAR */}
+        <nav className="w-full bg-white/10 border-b border-white/20 p-4 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Grayon Hub</h1>
+
+          <div className="flex gap-6">
+            <Link to="/" className="hover:text-blue-400 transition">Home</Link>
+            <Link to="/games" className="hover:text-blue-400 transition">Games</Link>
+            <Link to="/premium" className="hover:text-yellow-400 transition">Premium</Link>
+            <Link to="/mobile" className="hover:text-green-400 transition">Mobile</Link>
+            <Link to="/eaglercraft" className="hover:text-indigo-400 transition">Eaglercraft</Link>
+            <Link to="/admin" className="hover:text-red-400 transition">Admin</Link>
+          </div>
+        </nav>
+
+        {/* PAGE CONTENT */}
+        <div className="flex-1 p-6">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/games" element={<GameCenter />} />
+            <Route path="/premium" element={<PremiumGameCenter />} />
+            <Route path="/mobile" element={<MobileGames />} />
+            <Route path="/eaglercraft" element={<Eaglercraft />} />
+            <Route path="/admin" element={<AdminConsole />} />
+          </Routes>
+        </div>
+
+        {/* FOOTER */}
+        <footer className="w-full bg-white/10 border-t border-white/20 p-4 text-center text-white/60">
+          © {new Date().getFullYear()} Grayon Hub — All Rights Reserved
+        </footer>
+
+      </div>
+    </Router>
+  );
+}
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black text-white p-8 flex flex-col items-center">
+
+      {/* HERO SECTION */}
+      <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-center">
+        Welcome to Grayon Hub
+      </h1>
+
+      <p className="text-lg md:text-xl text-white/70 max-w-2xl text-center mb-10">
+        Your all‑in‑one portal for browser games, premium titles, mobile games,
+        Eaglercraft, and admin tools — rebuilt clean, modern, and powerful.
+      </p>
+
+      {/* BUTTON GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
+
+        <Link
+          to="/games"
+          className="bg-white/10 border border-white/20 p-6 rounded-xl hover:bg-white/20 transition text-center"
+        >
+          <h2 className="text-2xl font-bold mb-2">Game Center</h2>
+          <p className="text-white/60">Play hundreds of browser games instantly.</p>
+        </Link>
+
+        <Link
+          to="/premium"
+          className="bg-yellow-500/10 border border-yellow-400/40 p-6 rounded-xl hover:bg-yellow-500/20 transition text-center"
+        >
+          <h2 className="text-2xl font-bold mb-2 text-yellow-300">Premium Games</h2>
+          <p className="text-yellow-200/60">Exclusive high‑quality premium titles.</p>
+        </Link>
+
+        <Link
+          to="/mobile"
+          className="bg-green-500/10 border border-green-400/40 p-6 rounded-xl hover:bg-green-500/20 transition text-center"
+        >
+          <h2 className="text-2xl font-bold mb-2 text-green-300">Mobile Games</h2>
+          <p className="text-green-200/60">Touch‑friendly games for phones & tablets.</p>
+        </Link>
+
+        <Link
+          to="/eaglercraft"
+          className="bg-indigo-500/10 border border-indigo-400/40 p-6 rounded-xl hover:bg-indigo-500/20 transition text-center"
+        >
+          <h2 className="text-2xl font-bold mb-2 text-indigo-300">Eaglercraft</h2>
+          <p className="text-indigo-200/60">Minecraft‑style gameplay in your browser.</p>
+        </Link>
+
+        <Link
+          to="/admin"
+          className="bg-red-500/10 border border-red-400/40 p-6 rounded-xl hover:bg-red-500/20 transition text-center"
+        >
+          <h2 className="text-2xl font-bold mb-2 text-red-300">Admin Console</h2>
+          <p className="text-red-200/60">Manage users, bans, imports, and updates.</p>
+        </Link>
+
+      </div>
+
+      {/* FOOTER SPACER */}
+      <div className="h-20" />
+
+    </div>
+  );
+}
+import React, { useState } from "react";
+
+import games from "../data/games";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+
+export default function GameCenter() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [activeGame, setActiveGame] = useState(null);
+
+  const categories = ["All", "Action", "Puzzle", "Sports", "Racing", "Strategy"];
+
+  const filteredGames = games.filter((game) => {
+    const matchesSearch = game.title.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = category === "All" || game.category === category;
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white p-6">
+
+      {/* TITLE */}
+      <h1 className="text-4xl font-bold text-center mb-8">Game Center</h1>
+
+      {/* SEARCH BAR */}
+      <SearchBar value={search} onChange={setSearch} />
+
+      {/* CATEGORY FILTER */}
+      <CategoryFilter
+        categories={categories}
+        active={category}
+        onSelect={setCategory}
+      />
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {filteredGames.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onClick={() => setActiveGame(game)}
+          />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      <GameModal game={activeGame} onClose={() => setActiveGame(null)} />
+    </div>
+  );
+}
+const games = [
+  {
+    id: 1,
+    title: "Slope",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/slope",
+  },
+  {
+    id: 2,
+    title: "Run 3",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/run3",
+  },
+  {
+    id: 3,
+    title: "2048",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/2048",
+  },
+  {
+    id: 4,
+    title: "Basketball Stars",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/basketballstars",
+  },
+  {
+    id: 5,
+    title: "Moto X3M",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/motox3m",
+  },
+  {
+    id: 6,
+    title: "Chess",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/chess",
+  },
+  {
+    id: 7,
+    title: "Cut the Rope",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/cuttherope",
+  },
+  {
+    id: 8,
+    title: "Tunnel Rush",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/tunnelrush",
+  },
+  {
+    id: 9,
+    title: "Soccer Random",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/soccerrandom",
+  },
+  {
+    id: 10,
+    title: "Drift Hunters",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/drifthunters",
+  },
+];
+
+export default games;
+const premiumGames = [
+  {
+    id: 1,
+    title: "Cluster Rush Premium",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/cluster-rush-premium",
+  },
+  {
+    id: 2,
+    title: "Bloons TD 5",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/btd5",
+  },
+  {
+    id: 3,
+    title: "Stickman Hook Deluxe",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/stickman-hook-deluxe",
+  },
+  {
+    id: 4,
+    title: "Retro Bowl Premium",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/retro-bowl-premium",
+  },
+  {
+    id: 5,
+    title: "Getting Over It HD",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/getting-over-it-hd",
+  },
+];
+
+export default premiumGames;
+const mobileGames = [
+  {
+    id: 1,
+    title: "Flappy Bird Mobile",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/flappy-bird-mobile",
+  },
+  {
+    id: 2,
+    title: "Crossy Road Touch",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/crossy-road-touch",
+  },
+  {
+    id: 3,
+    title: "Subway Surfers Lite",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/subway-surfers-lite",
+  },
+  {
+    id: 4,
+    title: "Temple Run Mobile",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/temple-run-mobile",
+  },
+  {
+    id: 5,
+    title: "Jetpack Joyride Touch",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/jetpack-joyride-touch",
+  },
+];
+
+export default mobileGames;
+const eaglercraftGames = [
+  {
+    id: 1,
+    title: "Eaglercraft 1.8",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/eaglercraft-1-8",
+  },
+  {
+    id: 2,
+    title: "Eaglercraft 1.5",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/eaglercraft-1-5",
+  },
+  {
+    id: 3,
+    title: "Eaglercraft X",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/eaglercraft-x",
+  },
+  {
+    id: 4,
+    title: "Eaglercraft Hardcore",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/eaglercraft-hardcore",
+  },
+  {
+    id: 5,
+    title: "Eaglercraft Creative",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/eaglercraft-creative",
+  },
+];
+
+export default eaglercraftGames;
+import React from "react";
+
+export default function GameCard({ game, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white/10 border border-white/20 p-4 rounded-xl cursor-pointer hover:bg-white/20 transition"
+    >
+      <img
+        src={game.thumbnail}
+        alt={game.title}
+        className="rounded-lg mb-3 w-full h-32 object-cover"
+      />
+      <p className="font-semibold text-center">{game.title}</p>
+    </div>
+  );
+}
+import React from "react";
+
+export default function GameModal({ game, onClose }) {
+  if (!game) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur flex items-center justify-center p-6 z-50">
+      <div className="bg-black border border-white/20 rounded-xl p-6 max-w-3xl w-full">
+        <h2 className="text-2xl font-bold mb-4">{game.title}</h2>
+
+        <iframe
+          src={game.url}
+          className="w-full h-[500px] rounded-lg border border-white/10"
+        />
+
+        <button
+          onClick={onClose}
+          className="mt-4 w-full py-2 bg-red-600 rounded-lg hover:bg-red-500 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+import React from "react";
+
+export default function SearchBar({ value, onChange }) {
+  return (
+    <input
+      type="text"
+      placeholder="Search games..."
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full max-w-xl mx-auto block bg-white/10 border border-white/20 rounded-lg p-3 mb-6"
+    />
+  );
+}
+import React from "react";
+
+export default function CategoryFilter({ categories, active, onSelect }) {
+  return (
+    <div className="flex flex-wrap justify-center gap-3 mb-8">
+      {categories.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => onSelect(cat)}
+          className={`px-4 py-2 rounded-lg border transition ${
+            active === cat
+              ? "bg-blue-600 border-blue-400"
+              : "bg-white/10 border-white/20 hover:bg-white/20"
+          }`}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+  );
+}
+import React, { useState } from "react";
+
+import premiumGames from "../data/premiumGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+
+export default function PremiumGameCenter() {
+  const [search, setSearch] = useState("");
+  const [activeGame, setActiveGame] = useState(null);
+
+  const filteredGames = premiumGames.filter((game) =>
+    game.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-yellow-900 to-black text-white p-6">
+
+      {/* TITLE */}
+      <h1 className="text-4xl font-bold text-center mb-8 text-yellow-300">
+        Premium Game Center
+      </h1>
+
+      {/* SEARCH BAR */}
+      <SearchBar value={search} onChange={setSearch} />
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {filteredGames.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onClick={() => setActiveGame(game)}
+          />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      <GameModal game={activeGame} onClose={() => setActiveGame(null)} />
+    </div>
+  );
+}
+import React, { useState } from "react";
+
+import mobileGames from "../data/mobileGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+
+export default function MobileGames() {
+  const [search, setSearch] = useState("");
+  const [activeGame, setActiveGame] = useState(null);
+
+  const filteredGames = mobileGames.filter((game) =>
+    game.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-900 to-black text-white p-6">
+
+      {/* TITLE */}
+      <h1 className="text-4xl font-bold text-center mb-8 text-green-300">
+        Mobile Games
+      </h1>
+
+      {/* DESCRIPTION */}
+      <p className="text-center text-white/70 max-w-2xl mx-auto mb-10">
+        Touch‑friendly games optimized for phones and tablets.  
+        These titles load fast, run smooth, and are perfect for mobile play.
+      </p>
+
+      {/* SEARCH BAR */}
+      <SearchBar value={search} onChange={setSearch} />
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-6xl mx-auto mt-6">
+        {filteredGames.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onClick={() => setActiveGame(game)}
+          />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      <GameModal game={activeGame} onClose={() => setActiveGame(null)} />
+
+      {/* SPACER */}
+      <div className="h-20" />
+
+    </div>
+  );
+}
+import React, { useState } from "react";
+
+import eaglercraftGames from "../data/eaglercraftGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+
+export default function Eaglercraft() {
+  const [search, setSearch] = useState("");
+  const [activeGame, setActiveGame] = useState(null);
+
+  const filteredGames = eaglercraftGames.filter((game) =>
+    game.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-indigo-900 to-black text-white p-6">
+
+      {/* TITLE */}
+      <h1 className="text-4xl font-bold text-center mb-6 text-indigo-300">
+        Eaglercraft Center
+      </h1>
+
+      {/* SUBTITLE */}
+      <p className="text-center text-white/70 max-w-3xl mx-auto mb-10">
+        Play browser‑based Minecraft‑style experiences directly in your browser.  
+        These versions are optimized for performance, fullscreen support, and smooth gameplay.
+      </p>
+
+      {/* SEARCH BAR */}
+      <SearchBar value={search} onChange={setSearch} />
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 max-w-6xl mx-auto mt-6">
+        {filteredGames.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onClick={() => setActiveGame(game)}
+          />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      <GameModal game={activeGame} onClose={() => setActiveGame(null)} />
+
+      {/* EXTRA SPACING */}
+      <div className="h-24" />
+
+      {/* INFO SECTION */}
+      <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 p-6 rounded-xl mt-10">
+        <h2 className="text-2xl font-bold mb-3 text-indigo-200">About Eaglercraft</h2>
+        <p className="text-white/70 leading-relaxed mb-4">
+          Eaglercraft is a browser‑based re‑implementation of classic Minecraft versions.
+          It runs entirely in WebGL and JavaScript, allowing smooth gameplay without downloads.
+        </p>
+
+        <ul className="list-disc list-inside text-white/60 space-y-2">
+          <li>Runs directly in your browser</li>
+          <li>No installation required</li>
+          <li>Supports fullscreen mode</li>
+          <li>Works on school Chromebooks</li>
+          <li>Fast loading and optimized performance</li>
+        </ul>
+      </div>
+
+      {/* SPACER */}
+      <div className="h-20" />
+
+    </div>
+  );
+}
+import React, { useState } from "react";
+
+const TABS = ["Users", "Bans", "Imports", "Updates", "Suggestions", "Ranks"];
+
+const INITIAL_USERS = [
+  { id: 1, name: "OwnerUser", email: "owner@example.com", rank: "Owner", banned: false },
+  { id: 2, name: "CreatorUser", email: "creator@example.com", rank: "Creator", banned: false },
+  { id: 3, name: "UpperAdmin1", email: "upper1@example.com", rank: "Upper Admin", banned: false },
+  { id: 4, name: "LowerMod1", email: "mod1@example.com", rank: "Lower Mod", banned: false },
+  { id: 5, name: "RegularPlayer", email: "player@example.com", rank: "User", banned: false },
+];
+
+const INITIAL_BANS = [
+  { id: 1, userName: "ToxicPlayer", reason: "Toxic behavior", date: "2026-02-01" },
+  { id: 2, userName: "Spammer123", reason: "Spam / Advertising", date: "2026-02-10" },
+];
+
+const INITIAL_IMPORTS = [
+  { id: 1, title: "New Game Pack #1", description: "Added 10 new action games", date: "2026-01-20" },
+];
+
+const INITIAL_UPDATES = [
+  { id: 1, title: "v1.0.0 Launch", description: "Initial release of Grayon Hub", date: "2026-01-01" },
+  { id: 2, title: "v1.1.0 Game Center Upgrade", description: "Improved search and categories", date: "2026-02-15" },
+];
+
+const INITIAL_SUGGESTIONS = [
+  { id: 1, user: "PlayerOne", text: "Add more racing games", status: "Pending" },
+  { id: 2, user: "ChillUser", text: "Dark mode toggle in settings", status: "Reviewed" },
+];
+
+const RANKS = ["Owner", "Creator", "Upper Admin", "Lower Mod", "User"];
+
+export default function AdminConsole() {
+  const [activeTab, setActiveTab] = useState("Users");
+
+  const [users, setUsers] = useState(INITIAL_USERS);
+  const [bans, setBans] = useState(INITIAL_BANS);
+  const [imports, setImports] = useState(INITIAL_IMPORTS);
+  const [updates, setUpdates] = useState(INITIAL_UPDATES);
+  const [suggestions, setSuggestions] = useState(INITIAL_SUGGESTIONS);
+
+  const [newImportTitle, setNewImportTitle] = useState("");
+  const [newImportDescription, setNewImportDescription] = useState("");
+
+  const [newUpdateTitle, setNewUpdateTitle] = useState("");
+  const [newUpdateDescription, setNewUpdateDescription] = useState("");
+
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedRank, setSelectedRank] = useState("User");
+
+  const [banUserName, setBanUserName] = useState("");
+  const [banReason, setBanReason] = useState("");
+
+  const [suggestionFilter, setSuggestionFilter] = useState("All");
+
+  // USERS TAB ACTIONS
+  const handleDeleteUser = (id) => {
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+  };
+
+  const handleToggleBanUser = (id) => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === id ? { ...u, banned: !u.banned } : u
+      )
+    );
+  };
+
+  // BANS TAB ACTIONS
+  const handleAddBan = () => {
+    if (!banUserName.trim() || !banReason.trim()) return;
+    const newBan = {
+      id: Date.now(),
+      userName: banUserName.trim(),
+      reason: banReason.trim(),
+      date: new Date().toISOString().slice(0, 10),
+    };
+    setBans((prev) => [newBan, ...prev]);
+    setBanUserName("");
+    setBanReason("");
+  };
+
+  const handleRemoveBan = (id) => {
+    setBans((prev) => prev.filter((b) => b.id !== id));
+  };
+
+  // IMPORTS TAB ACTIONS
+  const handleAddImport = () => {
+    if (!newImportTitle.trim() || !newImportDescription.trim()) return;
+    const newItem = {
+      id: Date.now(),
+      title: newImportTitle.trim(),
+      description: newImportDescription.trim(),
+      date: new Date().toISOString().slice(0, 10),
+    };
+    setImports((prev) => [newItem, ...prev]);
+    setNewImportTitle("");
+    setNewImportDescription("");
+  };
+
+  // UPDATES TAB ACTIONS
+  const handleAddUpdate = () => {
+    if (!newUpdateTitle.trim() || !newUpdateDescription.trim()) return;
+    const newItem = {
+      id: Date.now(),
+      title: newUpdateTitle.trim(),
+      description: newUpdateDescription.trim(),
+      date: new Date().toISOString().slice(0, 10),
+    };
+    setUpdates((prev) => [newItem, ...prev]);
+    setNewUpdateTitle("");
+    setNewUpdateDescription("");
+  };
+
+  // RANKS TAB ACTIONS
+  const handleApplyRank = () => {
+    if (!selectedUserId) return;
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === Number(selectedUserId) ? { ...u, rank: selectedRank } : u
+      )
+    );
+  };
+
+  // SUGGESTIONS TAB ACTIONS
+  const handleChangeSuggestionStatus = (id, status) => {
+    setSuggestions((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, status } : s
+      )
+    );
+  };
+
+  const filteredSuggestions =
+    suggestionFilter === "All"
+      ? suggestions
+      : suggestions.filter((s) => s.status === suggestionFilter);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-black text-white p-6">
+      {/* HEADER */}
+      <h1 className="text-4xl font-bold text-center mb-2">Admin Console</h1>
+      <p className="text-center text-white/60 mb-8">
+        Manage users, bans, imports, updates, suggestions, and ranks for Grayon Hub.
+      </p>
+
+      {/* TABS */}
+      <div className="flex flex-wrap justify-center gap-3 mb-8">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded-lg border text-sm md:text-base transition ${
+              activeTab === tab
+                ? "bg-blue-600 border-blue-400"
+                : "bg-white/10 border-white/20 hover:bg-white/20"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* ACTIVE TAB CONTENT */}
+      <div className="max-w-6xl mx-auto bg-white/5 border border-white/10 rounded-xl p-6">
+        {activeTab === "Users" && (
+          <UsersTab
+            users={users}
+            onDeleteUser={handleDeleteUser}
+            onToggleBanUser={handleToggleBanUser}
+          />
+        )}
+
+        {activeTab === "Bans" && (
+          <BansTab
+            bans={bans}
+            banUserName={banUserName}
+            banReason={banReason}
+            setBanUserName={setBanUserName}
+            setBanReason={setBanReason}
+            onAddBan={handleAddBan}
+            onRemoveBan={handleRemoveBan}
+          />
+        )}
+
+        {activeTab === "Imports" && (
+          <ImportsTab
+            imports={imports}
+            newImportTitle={newImportTitle}
+            newImportDescription={newImportDescription}
+            setNewImportTitle={setNewImportTitle}
+            setNewImportDescription={setNewImportDescription}
+            onAddImport={handleAddImport}
+          />
+        )}
+
+        {activeTab === "Updates" && (
+          <UpdatesTab
+            updates={updates}
+            newUpdateTitle={newUpdateTitle}
+            newUpdateDescription={newUpdateDescription}
+            setNewUpdateTitle={setNewUpdateTitle}
+            setNewUpdateDescription={setNewUpdateDescription}
+            onAddUpdate={handleAddUpdate}
+          />
+        )}
+
+        {activeTab === "Suggestions" && (
+          <SuggestionsTab
+            suggestions={filteredSuggestions}
+            suggestionFilter={suggestionFilter}
+            setSuggestionFilter={setSuggestionFilter}
+            onChangeSuggestionStatus={handleChangeSuggestionStatus}
+          />
+        )}
+
+        {activeTab === "Ranks" && (
+          <RanksTab
+            users={users}
+            ranks={RANKS}
+            selectedUserId={selectedUserId}
+            setSelectedUserId={setSelectedUserId}
+            selectedRank={selectedRank}
+            setSelectedRank={setSelectedRank}
+            onApplyRank={handleApplyRank}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* USERS TAB */
+function UsersTab({ users, onDeleteUser, onToggleBanUser }) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Users</h2>
+      <p className="text-white/60 mb-4">
+        View all users, delete accounts, and toggle ban status.
+      </p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm md:text-base">
+          <thead>
+            <tr className="text-left border-b border-white/20">
+              <th className="py-2 pr-4">ID</th>
+              <th className="py-2 pr-4">Name</th>
+              <th className="py-2 pr-4">Email</th>
+              <th className="py-2 pr-4">Rank</th>
+              <th className="py-2 pr-4">Banned</th>
+              <th className="py-2 pr-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id} className="border-b border-white/10">
+                <td className="py-2 pr-4">{u.id}</td>
+                <td className="py-2 pr-4">{u.name}</td>
+                <td className="py-2 pr-4">{u.email}</td>
+                <td className="py-2 pr-4">{u.rank}</td>
+                <td className="py-2 pr-4">
+                  {u.banned ? (
+                    <span className="text-red-400 font-semibold">Yes</span>
+                  ) : (
+                    <span className="text-green-400 font-semibold">No</span>
+                  )}
+                </td>
+                <td className="py-2 pr-4 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => onToggleBanUser(u.id)}
+                    className="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-500 text-xs md:text-sm"
+                  >
+                    {u.banned ? "Unban" : "Ban"}
+                  </button>
+                  <button
+                    onClick={() => onDeleteUser(u.id)}
+                    className="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-xs md:text-sm"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="6" className="py-4 text-center text-white/50">
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* BANS TAB */
+function BansTab({
+  bans,
+  banUserName,
+  banReason,
+  setBanUserName,
+  setBanReason,
+  onAddBan,
+  onRemoveBan,
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Bans</h2>
+      <p className="text-white/60 mb-4">
+        Add new bans, manage existing bans, and remove bans when needed.
+      </p>
+
+      {/* ADD BAN FORM */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Username"
+          value={banUserName}
+          onChange={(e) => setBanUserName(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <input
+          type="text"
+          placeholder="Reason"
+          value={banReason}
+          onChange={(e) => setBanReason(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <button
+          onClick={onAddBan}
+          className="bg-red-600 hover:bg-red-500 rounded-lg px-4 py-2"
+        >
+          Add Ban
+        </button>
+      </div>
+
+      {/* BANS TABLE */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm md:text-base">
+          <thead>
+            <tr className="text-left border-b border-white/20">
+              <th className="py-2 pr-4">ID</th>
+              <th className="py-2 pr-4">User</th>
+              <th className="py-2 pr-4">Reason</th>
+              <th className="py-2 pr-4">Date</th>
+              <th className="py-2 pr-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bans.map((b) => (
+              <tr key={b.id} className="border-b border-white/10">
+                <td className="py-2 pr-4">{b.id}</td>
+                <td className="py-2 pr-4">{b.userName}</td>
+                <td className="py-2 pr-4">{b.reason}</td>
+                <td className="py-2 pr-4">{b.date}</td>
+                <td className="py-2 pr-4">
+                  <button
+                    onClick={() => onRemoveBan(b.id)}
+                    className="px-3 py-1 rounded bg-green-600 hover:bg-green-500 text-xs md:text-sm"
+                  >
+                    Remove Ban
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {bans.length === 0 && (
+              <tr>
+                <td colSpan="5" className="py-4 text-center text-white/50">
+                  No bans found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* IMPORTS TAB */
+function ImportsTab({
+  imports,
+  newImportTitle,
+  newImportDescription,
+  setNewImportTitle,
+  setNewImportDescription,
+  onAddImport,
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Imports</h2>
+      <p className="text-white/60 mb-4">
+        Track game imports, content packs, and bulk additions to the hub.
+      </p>
+
+      {/* ADD IMPORT FORM */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Import title"
+          value={newImportTitle}
+          onChange={(e) => setNewImportTitle(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          value={newImportDescription}
+          onChange={(e) => setNewImportDescription(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <button
+          onClick={onAddImport}
+          className="bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2"
+        >
+          Add Import
+        </button>
+      </div>
+
+      {/* IMPORTS LIST */}
+      <div className="space-y-3">
+        {imports.map((imp) => (
+          <div
+            key={imp.id}
+            className="bg-black/40 border border-white/15 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+          >
+            <div>
+              <h3 className="font-semibold">{imp.title}</h3>
+              <p className="text-white/60 text-sm">{imp.description}</p>
+            </div>
+            <span className="text-white/40 text-sm">Date: {imp.date}</span>
+          </div>
+        ))}
+        {imports.length === 0 && (
+          <p className="text-white/50 text-center mt-4">
+            No imports recorded yet.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* UPDATES TAB */
+function UpdatesTab({
+  updates,
+  newUpdateTitle,
+  newUpdateDescription,
+  setNewUpdateTitle,
+  setNewUpdateDescription,
+  onAddUpdate,
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Updates</h2>
+      <p className="text-white/60 mb-4">
+        Log version updates, patch notes, and major changes to Grayon Hub.
+      </p>
+
+      {/* ADD UPDATE FORM */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Update title"
+          value={newUpdateTitle}
+          onChange={(e) => setNewUpdateTitle(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          value={newUpdateDescription}
+          onChange={(e) => setNewUpdateDescription(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        />
+        <button
+          onClick={onAddUpdate}
+          className="bg-purple-600 hover:bg-purple-500 rounded-lg px-4 py-2"
+        >
+          Add Update
+        </button>
+      </div>
+
+      {/* UPDATES LIST */}
+      <div className="space-y-3">
+        {updates.map((up) => (
+          <div
+            key={up.id}
+            className="bg-black/40 border border-white/15 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+          >
+            <div>
+              <h3 className="font-semibold">{up.title}</h3>
+              <p className="text-white/60 text-sm">{up.description}</p>
+            </div>
+            <span className="text-white/40 text-sm">Date: {up.date}</span>
+          </div>
+        ))}
+        {updates.length === 0 && (
+          <p className="text-white/50 text-center mt-4">
+            No updates logged yet.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* SUGGESTIONS TAB */
+function SuggestionsTab({
+  suggestions,
+  suggestionFilter,
+  setSuggestionFilter,
+  onChangeSuggestionStatus,
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Suggestions</h2>
+      <p className="text-white/60 mb-4">
+        Review player suggestions and mark them as Pending, Reviewed, or Completed.
+      </p>
+
+      {/* FILTER */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        {["All", "Pending", "Reviewed", "Completed"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setSuggestionFilter(status)}
+            className={`px-3 py-1 rounded-lg border text-xs md:text-sm transition ${
+              suggestionFilter === status
+                ? "bg-teal-600 border-teal-400"
+                : "bg-white/10 border-white/20 hover:bg-white/20"
+            }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+      {/* SUGGESTIONS LIST */}
+      <div className="space-y-3">
+        {suggestions.map((s) => (
+          <div
+            key={s.id}
+            className="bg-black/40 border border-white/15 rounded-lg p-4 flex flex-col gap-2"
+          >
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">{s.user}</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-white/10 border border-white/20">
+                {s.status}
+              </span>
+            </div>
+            <p className="text-white/70 text-sm">{s.text}</p>
+
+            <div className="flex flex-wrap gap-2 mt-2">
+              {["Pending", "Reviewed", "Completed"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => onChangeSuggestionStatus(s.id, status)}
+                  className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-xs"
+                >
+                  Mark {status}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+        {suggestions.length === 0 && (
+          <p className="text-white/50 text-center mt-4">
+            No suggestions available.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* RANKS TAB */
+function RanksTab({
+  users,
+  ranks,
+  selectedUserId,
+  setSelectedUserId,
+  selectedRank,
+  setSelectedRank,
+  onApplyRank,
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Ranks</h2>
+      <p className="text-white/60 mb-4">
+        Assign ranks like Owner, Creator, Upper Admin, Lower Mod, and User.
+      </p>
+
+      {/* RANK FORM */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        <select
+          value={selectedUserId || ""}
+          onChange={(e) => setSelectedUserId(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        >
+          <option value="">Select user</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name} ({u.rank})
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedRank}
+          onChange={(e) => setSelectedRank(e.target.value)}
+          className="bg-black/40 border border-white/20 rounded-lg p-2"
+        >
+          {ranks.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={onApplyRank}
+          className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-2"
+        >
+          Apply Rank
+        </button>
+      </div>
+
+      {/* USERS + RANKS OVERVIEW */}
+      <div className="space-y-2">
+        {users.map((u) => (
+          <div
+            key={u.id}
+            className="bg-black/40 border border-white/15 rounded-lg p-3 flex justify-between items-center"
+          >
+            <div>
+              <p className="font-semibold">{u.name}</p>
+              <p className="text-white/60 text-sm">{u.email}</p>
+            </div>
+            <span className="text-sm px-3 py-1 rounded-full bg-white/10 border border-white/20">
+              {u.rank}
+            </span>
+          </div>
+        ))}
+        {users.length === 0 && (
+          <p className="text-white/50 text-center mt-4">
+            No users to display.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+/* Tailwind base (if you're using Tailwind) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GLOBAL RESET / BASE */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #020617 0, #000 55%, #020617 100%);
+  color: #f9fafb;
+}
+
+/* SCROLLBARS */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* LINKS */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* ROOT LAYOUT HELPERS */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
+
+/* NAVBAR */
+.nav-blur {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* CARDS */
+.card {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+  border-color: rgba(96, 165, 250, 0.7);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border-color: rgba(191, 219, 254, 0.4);
+  color: #e5e7eb;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #4338ca);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border-color: rgba(254, 202, 202, 0.4);
+  color: #fee2e2;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #e5e7eb;
+}
+
+.btn-ghost:hover {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* INPUTS */
+.input,
+select,
+textarea {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  padding: 0.5rem 0.75rem;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(59, 130, 246, 0.9);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.9);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* TABLES */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+}
+
+.table th {
+  text-align: left;
+  font-weight: 600;
+  color: #e5e7eb;
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.table tr:nth-child(even) td {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+/* TAGS / BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-green {
+  background: rgba(22, 163, 74, 0.2);
+  color: #bbf7d0;
+  border: 1px solid rgba(22, 163, 74, 0.6);
+}
+
+.badge-red {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fecaca;
+  border: 1px solid rgba(220, 38, 38, 0.6);
+}
+
+.badge-yellow {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fef9c3;
+  border: 1px solid rgba(234, 179, 8, 0.6);
+}
+
+.badge-blue {
+  background: rgba(37, 99, 235, 0.2);
+  color: #bfdbfe;
+  border: 1px solid rgba(37, 99, 235, 0.6);
+}
+
+/* MODAL BACKDROP (extra safety if Tailwind classes fail) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* GAME IFRAME */
+.game-frame {
+  width: 100%;
+  height: 500px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: #020617;
+}
+
+/* PAGE TITLES */
+.page-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.page-subtitle {
+  text-align: center;
+  color: #9ca3af;
+  max-width: 40rem;
+  margin: 0 auto 2.5rem auto;
+}
+
+/* GRID HELPERS */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ADMIN CONSOLE SPECIALS */
+.admin-section {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 1.25rem;
+}
+
+.admin-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.admin-section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.admin-section-header p {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+/* RESPONSIVE HELPERS */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .card {
+    padding: 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* FOOTER */
+.footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* ANIMATIONS */
+@keyframes float-soft {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float-soft {
+  animation: float-soft 4s ease-in-out infinite;
+}
+
+/* HERO GLOW */
+.hero-glow {
+  position: relative;
+}
+
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.25), transparent 60%);
+  opacity: 0.7;
+  filter: blur(30px);
+  z-index: -1;
+}
+
+/* UTILITIES */
+.text-faint {
+  color: #6b7280;
+}
+
+.text-strong {
+  color: #e5e7eb;
+}
+
+.border-soft {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.bg-panel {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* END OF MASSIVE INDEX.CSS */
+const games = [
+  // ACTION
+  {
+    id: 1,
+    title: "Slope",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/slope",
+  },
+  {
+    id: 2,
+    title: "Run 3",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/run3",
+  },
+  {
+    id: 3,
+    title: "Tunnel Rush",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/tunnelrush",
+  },
+  {
+    id: 4,
+    title: "Stickman Hook",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/stickman-hook",
+  },
+  {
+    id: 5,
+    title: "Vex 3",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/vex3",
+  },
+  {
+    id: 6,
+    title: "Vex 4",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/vex4",
+  },
+  {
+    id: 7,
+    title: "Vex 5",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/vex5",
+  },
+  {
+    id: 8,
+    title: "Fireboy and Watergirl",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/fireboy-watergirl",
+  },
+  {
+    id: 9,
+    title: "Stick Fight",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/stick-fight",
+  },
+  {
+    id: 10,
+    title: "Gun Mayhem",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/gun-mayhem",
+  },
+  {
+    id: 11,
+    title: "Gun Mayhem 2",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/gun-mayhem-2",
+  },
+  {
+    id: 12,
+    title: "Super Smash Flash",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/super-smash-flash",
+  },
+
+  // PUZZLE
+  {
+    id: 13,
+    title: "2048",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/2048",
+  },
+  {
+    id: 14,
+    title: "Cut the Rope",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/cut-the-rope",
+  },
+  {
+    id: 15,
+    title: "Where's My Water?",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/wheres-my-water",
+  },
+  {
+    id: 16,
+    title: "Red Ball 4",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/red-ball-4",
+  },
+  {
+    id: 17,
+    title: "World's Hardest Game",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/worlds-hardest-game",
+  },
+  {
+    id: 18,
+    title: "World's Hardest Game 2",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/worlds-hardest-game-2",
+  },
+  {
+    id: 19,
+    title: "Bloxorz",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/bloxorz",
+  },
+  {
+    id: 20,
+    title: "Sugar Sugar",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/sugar-sugar",
+  },
+  {
+    id: 21,
+    title: "Sugar Sugar 2",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/sugar-sugar-2",
+  },
+  {
+    id: 22,
+    title: "Portal Flash",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/portal-flash",
+  },
+
+  // SPORTS
+  {
+    id: 23,
+    title: "Basketball Stars",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/basketball-stars",
+  },
+  {
+    id: 24,
+    title: "Basketball Legends",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/basketball-legends",
+  },
+  {
+    id: 25,
+    title: "Soccer Random",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/soccer-random",
+  },
+  {
+    id: 26,
+    title: "Soccer Physics",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/soccer-physics",
+  },
+  {
+    id: 27,
+    title: "Retro Bowl",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/retro-bowl",
+  },
+  {
+    id: 28,
+    title: "Football Legends",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/football-legends",
+  },
+  {
+    id: 29,
+    title: "Dunk Shot",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/dunk-shot",
+  },
+  {
+    id: 30,
+    title: "Golf Battle",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/golf-battle",
+  },
+
+  // RACING
+  {
+    id: 31,
+    title: "Moto X3M",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/moto-x3m",
+  },
+  {
+    id: 32,
+    title: "Moto X3M 2",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/moto-x3m-2",
+  },
+  {
+    id: 33,
+    title: "Drift Hunters",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/drift-hunters",
+  },
+  {
+    id: 34,
+    title: "Madalin Stunt Cars 2",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/madalin-stunt-cars-2",
+  },
+  {
+    id: 35,
+    title: "Madalin Stunt Cars 3",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/madalin-stunt-cars-3",
+  },
+  {
+    id: 36,
+    title: "Hill Climb Racing Web",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/hill-climb-racing",
+  },
+  {
+    id: 37,
+    title: "Bike Race",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/bike-race",
+  },
+  {
+    id: 38,
+    title: "Rally Point",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/rally-point",
+  },
+
+  // STRATEGY
+  {
+    id: 39,
+    title: "Chess",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/chess",
+  },
+  {
+    id: 40,
+    title: "Checkers",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/6T6T6T6.png",
+    url: "https://example.com/checkers",
+  },
+  {
+    id: 41,
+    title: "Bloons TD 1",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/bloons-td-1",
+  },
+  {
+    id: 42,
+    title: "Bloons TD 2",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/bloons-td-2",
+  },
+  {
+    id: 43,
+    title: "Bloons TD 4",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/bloons-td-4",
+  },
+  {
+    id: 44,
+    title: "Bloons TD 5",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/bloons-td-5",
+  },
+  {
+    id: 45,
+    title: "Kingdom Rush",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/kingdom-rush",
+  },
+  {
+    id: 46,
+    title: "Kingdom Rush Frontiers",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/kingdom-rush-frontiers",
+  },
+  {
+    id: 47,
+    title: "Plants vs Zombies Web",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/plants-vs-zombies",
+  },
+
+  // MISC / EXTRA
+  {
+    id: 48,
+    title: "Getting Over It Web",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/getting-over-it",
+  },
+  {
+    id: 49,
+    title: "Happy Wheels",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/happy-wheels",
+  },
+  {
+    id: 50,
+    title: "Territory War",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/territory-war",
+  },
+  {
+    id: 51,
+    title: "Stick War",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/stick-war",
+  },
+  {
+    id: 52,
+    title: "Stick War 2",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/7Y7Y7Y7.png",
+    url: "https://example.com/stick-war-2",
+  },
+  {
+    id: 53,
+    title: "Shell Shockers",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/9Z9Z9Z9.png",
+    url: "https://example.com/shell-shockers",
+  },
+  {
+    id: 54,
+    title: "Krunker",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/3X3X3X3.png",
+    url: "https://example.com/krunker",
+  },
+  {
+    id: 55,
+    title: "Paper.io",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/5R5R5R5.png",
+    url: "https://example.com/paper-io",
+  },
+  {
+    id: 56,
+    title: "Agar.io",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/1A1A1A1.png",
+    url: "https://example.com/agar-io",
+  },
+  {
+    id: 57,
+    title: "Slither.io",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8B8B8B8.png",
+    url: "https://example.com/slither-io",
+  },
+  {
+    id: 58,
+    title: "Zombs Royale",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8QZQZQp.png",
+    url: "https://example.com/zombs-royale",
+  },
+  {
+    id: 59,
+    title: "1v1.lol",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/2kQ2Q2a.png",
+    url: "https://example.com/1v1-lol",
+  },
+  {
+    id: 60,
+    title: "Build Royale",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/4Q4Q4Q4.png",
+    url: "https://example.com/build-royale",
+  },
+];
+
+export default games;
+src/
+│
+├── components/
+│   ├── GameCard.jsx
+│   ├── GameModal.jsx
+│   ├── SearchBar.jsx
+│   ├── CategoryFilter.jsx
+│
+├── data/
+│   ├── games.js
+│   ├── premiumGames.js
+│   ├── mobileGames.js
+│   ├── eaglercraftGames.js
+│
+├── pages/
+│   ├── Home.jsx
+│   ├── GameCenter.jsx
+│   ├── PremiumGameCenter.jsx
+│   ├── MobileGames.jsx
+│   ├── Eaglercraft.jsx
+│   ├── AdminConsole.jsx
+│
+├── App.jsx
+├── main.jsx
+├── index.css
+npm install
+npm run dev
+npm run build
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default function NotFound() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-red-900 to-black text-white p-8">
+
+      {/* TITLE */}
+      <h1 className="text-6xl md:text-8xl font-extrabold mb-4 animate-pulse">
+        404
+      </h1>
+
+      {/* SUBTITLE */}
+      <h2 className="text-2xl md:text-3xl font-bold mb-4 text-red-300">
+        Page Not Found
+      </h2>
+
+      {/* DESCRIPTION */}
+      <p className="text-white/70 text-center max-w-xl mb-10">
+        The page you're looking for doesn’t exist, was moved, or never existed
+        in the first place.  
+        Don’t worry — Grayon Hub has plenty of places to explore.
+      </p>
+
+      {/* BUTTONS */}
+      <div className="flex flex-wrap gap-4 justify-center">
+        <Link
+          to="/"
+          className="px-6 py-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition"
+        >
+          Return Home
+        </Link>
+
+        <Link
+          to="/games"
+          className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 transition"
+        >
+          Game Center
+        </Link>
+
+        <Link
+          to="/premium"
+          className="px-6 py-3 rounded-lg bg-yellow-600 hover:bg-yellow-500 transition"
+        >
+          Premium Games
+        </Link>
+
+        <Link
+          to="/mobile"
+          className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-500 transition"
+        >
+          Mobile Games
+        </Link>
+
+        <Link
+          to="/eaglercraft"
+          className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
+        >
+          Eaglercraft
+        </Link>
+      </div>
+
+      {/* EXTRA VISUALS */}
+      <div className="mt-16 max-w-2xl text-center text-white/40 text-sm leading-relaxed">
+        <p>
+          If you believe this is an error, contact an admin or check the Admin Console
+          for missing routes, broken links, or removed pages.
+        </p>
+        <p className="mt-2">
+          Grayon Hub is constantly expanding — new pages, new games, and new features
+          are added regularly.
+        </p>
+      </div>
+
+      {/* SPACER */}
+      <div className="h-20" />
+    </div>
+  );
+}
+import NotFound from "./pages/NotFound";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/games" element={<GameCenter />} />
+        <Route path="/premium" element={<PremiumGameCenter />} />
+        <Route path="/mobile" element={<MobileGames />} />
+        <Route path="/eaglercraft" element={<Eaglercraft />} />
+        <Route path="/admin" element={<AdminConsole />} />
+
+        {/* 404 FALLBACK */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white flex flex-col items-center justify-center p-8">
+
+      {/* TITLE */}
+      <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-center">
+        Welcome to Grayon Hub
+      </h1>
+
+      {/* SUBTITLE */}
+      <p className="text-white/70 text-lg md:text-xl max-w-2xl text-center mb-10">
+        Your all‑in‑one place for games, media, tools, and exclusive premium content.
+        Explore everything the hub has to offer.
+      </p>
+
+      {/* NAV BUTTONS */}
+      <div className="flex flex-wrap gap-4 justify-center">
+
+        <Link
+          to="/games"
+          className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 transition"
+        >
+          Game Center
+        </Link>
+
+        <Link
+          to="/premium"
+          className="px-6 py-3 rounded-lg bg-yellow-600 hover:bg-yellow-500 transition"
+        >
+          Premium Games
+        </Link>
+
+        <Link
+          to="/mobile"
+          className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-500 transition"
+        >
+          Mobile Games
+        </Link>
+
+        <Link
+          to="/eaglercraft"
+          className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
+        >
+          Eaglercraft
+        </Link>
+
+        <Link
+          to="/admin"
+          className="px-6 py-3 rounded-lg bg-red-600 hover:bg-red-500 transition"
+        >
+          Admin Console
+        </Link>
+
+      </div>
+
+      {/* FOOTER */}
+      <p className="mt-16 text-white/40 text-sm text-center">
+        Built by Grayon • Constantly expanding with new features and updates
+      </p>
+
+    </div>
+  );
+}
+import React, { useState } from "react";
+import games from "../data/games";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+
+export default function GameCenter() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  // FILTER LOGIC
+  const filteredGames = games.filter((game) => {
+    const matchesSearch =
+      game.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" || game.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-6">
+
+      {/* PAGE TITLE */}
+      <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-10">
+        Game Center
+      </h1>
+
+      {/* SEARCH + FILTERS */}
+      <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CategoryFilter
+          selected={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+      </div>
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredGames.map((game) => (
+          <GameCard key={game.id} game={game} onClick={() => setSelectedGame(game)} />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      {selectedGame && (
+        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+      )}
+
+      {/* FOOTER */}
+      <p className="text-center text-white/40 mt-16 text-sm">
+        Explore hundreds of games — updated regularly.
+      </p>
+    </div>
+  );
+}
+import React, { useState } from "react";
+import premiumGames from "../data/premiumGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+
+export default function PremiumGameCenter() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  // FILTER LOGIC
+  const filteredGames = premiumGames.filter((game) => {
+    const matchesSearch =
+      game.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" || game.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-yellow-900 to-black text-white p-6">
+
+      {/* PAGE TITLE */}
+      <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-10 text-yellow-400">
+        Premium Game Center
+      </h1>
+
+      {/* SEARCH + FILTERS */}
+      <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CategoryFilter
+          selected={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+      </div>
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredGames.map((game) => (
+          <GameCard key={game.id} game={game} onClick={() => setSelectedGame(game)} />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      {selectedGame && (
+        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+      )}
+
+      {/* FOOTER */}
+      <p className="text-center text-white/40 mt-16 text-sm">
+        Exclusive premium titles — updated regularly.
+      </p>
+    </div>
+  );
+}
+import React, { useState } from "react";
+import mobileGames from "../data/mobileGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+
+export default function MobileGames() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  // FILTER LOGIC
+  const filteredGames = mobileGames.filter((game) => {
+    const matchesSearch =
+      game.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" || game.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-900 to-black text-white p-6">
+
+      {/* PAGE TITLE */}
+      <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-10 text-green-400">
+        Mobile Games
+      </h1>
+
+      {/* SEARCH + FILTERS */}
+      <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CategoryFilter
+          selected={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+      </div>
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredGames.map((game) => (
+          <GameCard key={game.id} game={game} onClick={() => setSelectedGame(game)} />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      {selectedGame && (
+        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+      )}
+
+      {/* FOOTER */}
+      <p className="text-center text-white/40 mt-16 text-sm">
+        Play anywhere — optimized mobile titles updated often.
+      </p>
+    </div>
+  );
+}
+import React, { useState } from "react";
+import eaglercraftGames from "../data/eaglercraftGames";
+import GameCard from "../components/GameCard";
+import GameModal from "../components/GameModal";
+import SearchBar from "../components/SearchBar";
+import CategoryFilter from "../components/CategoryFilter";
+
+export default function Eaglercraft() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  // FILTER LOGIC
+  const filteredGames = eaglercraftGames.filter((game) => {
+    const matchesSearch =
+      game.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" || game.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-indigo-900 to-black text-white p-6">
+
+      {/* PAGE TITLE */}
+      <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-10 text-indigo-400">
+        Eaglercraft
+      </h1>
+
+      {/* SEARCH + FILTERS */}
+      <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CategoryFilter
+          selected={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+      </div>
+
+      {/* GAME GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredGames.map((game) => (
+          <GameCard key={game.id} game={game} onClick={() => setSelectedGame(game)} />
+        ))}
+      </div>
+
+      {/* MODAL */}
+      {selectedGame && (
+        <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+      )}
+
+      {/* FOOTER */}
+      <p className="text-center text-white/40 mt-16 text-sm">
+        Eaglercraft builds, servers, and tools — updated regularly.
+      </p>
+    </div>
+  );
+}
+import React from "react";
+
+export default function AdminConsole() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-red-900 to-black text-white p-8">
+
+      {/* TITLE */}
+      <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-6">
+        Admin Console
+      </h1>
+
+      {/* RANK SYSTEM */}
+      <div className="max-w-3xl mx-auto bg-white/10 p-6 rounded-xl border border-white/20 mb-10">
+        <h2 className="text-2xl font-bold mb-4 text-red-300">Rank System</h2>
+
+        <ul className="space-y-2 text-white/80">
+          <li><span className="font-bold text-white">Owner:</span> Glora</li>
+          <li><span className="font-bold text-white">Creator / Brainer:</span> Green Hat (Santiago Castillo)</li>
+          <li><span className="font-bold text-white">Upper Admin:</span> Riptide</li>
+          <li><span className="font-bold text-white">Lower Moderator:</span> Jayden Garcia</li>
+        </ul>
+      </div>
+
+      {/* ACTION GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+
+        {/* BAN USER */}
+        <button className="p-6 bg-red-700 hover:bg-red-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Ban User</h3>
+          <p className="text-white/70 text-sm">Block a user from accessing the hub.</p>
+        </button>
+
+        {/* UNBAN USER */}
+        <button className="p-6 bg-green-700 hover:bg-green-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Unban User</h3>
+          <p className="text-white/70 text-sm">Restore access to a previously banned user.</p>
+        </button>
+
+        {/* DELETE ACCOUNT */}
+        <button className="p-6 bg-yellow-700 hover:bg-yellow-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Delete Account</h3>
+          <p className="text-white/70 text-sm">Permanently remove a user account.</p>
+        </button>
+
+        {/* ADD WEB IMPORT */}
+        <button className="p-6 bg-blue-700 hover:bg-blue-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Add Web Import</h3>
+          <p className="text-white/70 text-sm">Import a new game or external resource.</p>
+        </button>
+
+        {/* DELETE WEB IMPORT */}
+        <button className="p-6 bg-purple-700 hover:bg-purple-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Delete Web Import</h3>
+          <p className="text-white/70 text-sm">Remove an imported game or resource.</p>
+        </button>
+
+        {/* ADD UPDATE */}
+        <button className="p-6 bg-indigo-700 hover:bg-indigo-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Add Update</h3>
+          <p className="text-white/70 text-sm">Post a new update to the hub.</p>
+        </button>
+
+        {/* MANAGE SUGGESTIONS */}
+        <button className="p-6 bg-teal-700 hover:bg-teal-600 rounded-xl border border-white/20 transition text-left">
+          <h3 className="text-xl font-bold mb-2">Manage Suggestions</h3>
+          <p className="text-white/70 text-sm">Approve, deny, or review user suggestions.</p>
+        </button>
+
+      </div>
+
+      {/* FOOTER */}
+      <p className="text-center text-white/40 mt-16 text-sm">
+        Admin tools are for authorized users only. All actions are logged.
+      </p>
+    </div>
+  );
+}
+import React from "react";
+
+export default function GameCard({ game, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer bg-white/10 border border-white/20 rounded-xl overflow-hidden hover:bg-white/20 transition p-3 flex flex-col"
+    >
+      {/* THUMBNAIL */}
+      <img
+        src={game.thumbnail}
+        alt={game.title}
+        className="w-full h-32 object-cover rounded-lg mb-3"
+      />
+
+      {/* TITLE */}
+      <h3 className="text-lg font-bold mb-1">{game.title}</h3>
+
+      {/* CATEGORY */}
+      <p className="text-white/50 text-sm">{game.category}</p>
+    </div>
+  );
+}
+import React from "react";
+
+export default function GameModal({ game, onClose }) {
+  if (!game) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gray-900 border border-white/20 rounded-xl p-6 max-w-md w-full relative">
+
+        {/* CLOSE BUTTON */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-white/60 hover:text-white transition text-xl"
+        >
+          ✕
+        </button>
+
+        {/* THUMBNAIL */}
+        <img
+          src={game.thumbnail}
+          alt={game.title}
+          className="w-full h-40 object-cover rounded-lg mb-4"
+        />
+
+        {/* TITLE */}
+        <h2 className="text-2xl font-bold mb-2">{game.title}</h2>
+
+        {/* CATEGORY */}
+        <p className="text-white/50 text-sm mb-4">{game.category}</p>
+
+        {/* DESCRIPTION */}
+        <p className="text-white/70 text-sm mb-6">
+          {game.description || "No description available for this game."}
+        </p>
+
+        {/* PLAY BUTTON */}
+        <a
+          href={game.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full text-center bg-blue-600 hover:bg-blue-500 transition py-3 rounded-lg font-bold"
+        >
+          Play Now
+        </a>
+      </div>
+    </div>
+  );
+}
+import React from "react";
+
+export default function SearchBar({ value, onChange }) {
+  return (
+    <input
+      type="text"
+      placeholder="Search games..."
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full md:w-72 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-blue-400 transition"
+    />
+  );
+}
+import React from "react";
+
+export default function CategoryFilter({ selected, onChange }) {
+  const categories = [
+    "All",
+    "Action",
+    "Adventure",
+    "Puzzle",
+    "Strategy",
+    "Multiplayer",
+    "Horror",
+    "Racing",
+    "Sports",
+    "Sandbox",
+  ];
+
+  return (
+    <select
+      value={selected}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full md:w-48 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:border-blue-400 transition"
+    >
+      {categories.map((cat) => (
+        <option key={cat} value={cat} className="text-black">
+          {cat}
+        </option>
+      ))}
+    </select>
+  );
+}
+const games = [
+  {
+    id: 1,
+    title: "Slope",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8Q1ZQZy.png",
+    url: "https://example.com/slope",
+    description: "A fast‑paced downhill reflex game."
+  },
+  {
+    id: 2,
+    title: "Run 3",
+    category: "Adventure",
+    thumbnail: "https://i.imgur.com/7YkX9yB.png",
+    url: "https://example.com/run3",
+    description: "Navigate tunnels in space while avoiding obstacles."
+  },
+  {
+    id: 3,
+    title: "2048",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/2Qx6k5B.png",
+    url: "https://example.com/2048",
+    description: "Slide tiles to combine numbers and reach 2048."
+  },
+  {
+    id: 4,
+    title: "Basketball Stars",
+    category: "Sports",
+    thumbnail: "https://i.imgur.com/9gkZ8pF.png",
+    url: "https://example.com/basketballstars",
+    description: "A competitive 1v1 basketball game."
+  },
+  {
+    id: 5,
+    title: "Moto X3M",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/4Jx7m8N.png",
+    url: "https://example.com/motox3m",
+    description: "Perform stunts and race through challenging levels."
+  },
+];
+
+export default games;
+const premiumGames = [
+  {
+    id: 1,
+    title: "Premium Slope",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/8Q1ZQZy.png",
+    url: "https://example.com/premium-slope",
+    description: "An enhanced premium version of the classic Slope experience."
+  },
+  {
+    id: 2,
+    title: "Premium Drift Hunters",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/4Jx7m8N.png",
+    url: "https://example.com/premium-drift",
+    description: "Exclusive tracks, upgraded physics, and premium-only cars."
+  },
+  {
+    id: 3,
+    title: "Premium Chess",
+    category: "Strategy",
+    thumbnail: "https://i.imgur.com/7YkX9yB.png",
+    url: "https://example.com/premium-chess",
+    description: "Advanced AI, custom boards, and premium match modes."
+  },
+  {
+    id: 4,
+    title: "Premium Geometry Dash",
+    category: "Rhythm",
+    thumbnail: "https://i.imgur.com/2Qx6k5B.png",
+    url: "https://example.com/premium-geometrydash",
+    description: "Exclusive levels and enhanced visuals for premium users."
+  },
+  {
+    id: 5,
+    title: "Premium Stickman Hook",
+    category: "Arcade",
+    thumbnail: "https://i.imgur.com/9gkZ8pF.png",
+    url: "https://example.com/premium-stickman",
+    description: "A polished premium edition with new skins and levels."
+  },
+];
+
+export default premiumGames;
+const mobileGames = [
+  {
+    id: 1,
+    title: "Mobile Subway Surfers",
+    category: "Endless Runner",
+    thumbnail: "https://i.imgur.com/8Q1ZQZy.png",
+    url: "https://example.com/mobile-subway",
+    description: "A smooth, mobile‑optimized version of the classic runner."
+  },
+  {
+    id: 2,
+    title: "Mobile Hill Climb Racing",
+    category: "Racing",
+    thumbnail: "https://i.imgur.com/4Jx7m8N.png",
+    url: "https://example.com/mobile-hillclimb",
+    description: "Climb hills, upgrade vehicles, and conquer physics‑based tracks."
+  },
+  {
+    id: 3,
+    title: "Mobile 2048",
+    category: "Puzzle",
+    thumbnail: "https://i.imgur.com/2Qx6k5B.png",
+    url: "https://example.com/mobile-2048",
+    description: "A clean, responsive version of the classic 2048 puzzle."
+  },
+  {
+    id: 4,
+    title: "Mobile Stickman Hook",
+    category: "Arcade",
+    thumbnail: "https://i.imgur.com/9gkZ8pF.png",
+    url: "https://example.com/mobile-stickman",
+    description: "Swing through levels with smooth mobile controls."
+  },
+  {
+    id: 5,
+    title: "Mobile Geometry Dash Lite",
+    category: "Rhythm",
+    thumbnail: "https://i.imgur.com/7YkX9yB.png",
+    url: "https://example.com/mobile-gd-lite",
+    description: "A mobile‑friendly version of the iconic rhythm platformer."
+  },
+];
+
+export default mobileGames;
+const eaglercraftGames = [
+  {
+    id: 1,
+    title: "Eaglercraft 1.8",
+    category: "Sandbox",
+    thumbnail: "https://i.imgur.com/8Q1ZQZy.png",
+    url: "https://example.com/eagler-1-8",
+    description: "Classic Eaglercraft 1.8 build with smooth performance."
+  },
+  {
+    id: 2,
+    title: "Eaglercraft 1.5.2",
+    category: "Sandbox",
+    thumbnail: "https://i.imgur.com/7YkX9yB.png",
+    url: "https://example.com/eagler-1-5-2",
+    description: "A lightweight version of Eaglercraft for older devices."
+  },
+  {
+    id: 3,
+    title: "Eaglercraft Server Browser",
+    category: "Multiplayer",
+    thumbnail: "https://i.imgur.com/2Qx6k5B.png",
+    url: "https://example.com/eagler-server-browser",
+    description: "Browse and join active Eaglercraft multiplayer servers."
+  },
+  {
+    id: 4,
+    title: "Eaglercraft PvP Edition",
+    category: "Action",
+    thumbnail: "https://i.imgur.com/9gkZ8pF.png",
+    url: "https://example.com/eagler-pvp",
+    description: "Optimized for PvP with reduced lag and faster hit detection."
+  },
+  {
+    id: 5,
+    title: "Eaglercraft Mods Pack",
+    category: "Tools",
+    thumbnail: "https://i.imgur.com/4Jx7m8N.png",
+    url: "https://example.com/eagler-mods",
+    description: "A curated pack of mods compatible with Eaglercraft builds."
+  },
+];
+
+export default eaglercraftGames;
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home";
+import GameCenter from "./pages/GameCenter";
+import PremiumGameCenter from "./pages/PremiumGameCenter";
+import MobileGames from "./pages/MobileGames";
+import Eaglercraft from "./pages/Eaglercraft";
+import AdminConsole from "./pages/AdminConsole";
+import NotFound from "./pages/NotFound";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* MAIN ROUTES */}
+        <Route path="/" element={<Home />} />
+        <Route path="/games" element={<GameCenter />} />
+        <Route path="/premium" element={<PremiumGameCenter />} />
+        <Route path="/mobile" element={<MobileGames />} />
+        <Route path="/eaglercraft" element={<Eaglercraft />} />
+        <Route path="/admin" element={<AdminConsole />} />
+
+        {/* 404 FALLBACK */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+/* Tailwind base layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Body styling */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default function NotFound() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex flex-col items-center justify-center p-6">
+
+      <h1 className="text-6xl font-extrabold mb-4">404</h1>
+
+      <p className="text-white/70 text-lg mb-8 text-center max-w-md">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+
+      <Link
+        to="/"
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-500 transition rounded-lg font-bold"
+      >
+        Return Home
+      </Link>
+
+      <p className="text-white/30 text-sm mt-10">
+        Glora Hub — All routes are monitored.
+      </p>
+    </div>
+  );
+}
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+
+export default function Navbar() {
+  const { pathname } = useLocation();
+
+  const linkClass = (path) =>
+    `px-4 py-2 rounded-lg transition ${
+      pathname === path
+        ? "bg-white/20 text-white"
+        : "text-white/60 hover:text-white hover:bg-white/10"
+    }`;
+
+  return (
+    <nav className="w-full bg-black/40 backdrop-blur-md border-b border-white/10 fixed top-0 left-0 z-50">
+      <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
+
+        {/* LOGO */}
+        <Link to="/" className="text-2xl font-extrabold text-white">
+          Glora Hub
+        </Link>
+
+        {/* LINKS */}
+        <div className="flex gap-3">
+          <Link to="/games" className={linkClass("/games")}>Games</Link>
+          <Link to="/premium" className={linkClass("/premium")}>Premium</Link>
+          <Link to="/mobile" className={linkClass("/mobile")}>Mobile</Link>
+          <Link to="/eaglercraft" className={linkClass("/eaglercraft")}>Eaglercraft</Link>
+          <Link to="/admin" className={linkClass("/admin")}>Admin</Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+import Navbar from "./components/Navbar";
+<BrowserRouter>
+  <Navbar />
+  <Routes>
+    ...
+  </Routes>
+</BrowserRouter>
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default function Footer() {
+  return (
+    <footer className="w-full bg-black/40 backdrop-blur-md border-t border-white/10 mt-20 py-8 text-white/60">
+      <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+
+        {/* LEFT SIDE */}
+        <div className="text-center md:text-left">
+          <h2 className="text-xl font-bold text-white mb-1">Glora Hub</h2>
+          <p className="text-sm">Your gateway to games, tools, and creativity.</p>
+        </div>
+
+        {/* CENTER LINKS */}
+        <div className="flex gap-6 text-sm">
+          <Link to="/" className="hover:text-white transition">Home</Link>
+          <Link to="/games" className="hover:text-white transition">Games</Link>
+          <Link to="/premium" className="hover:text-white transition">Premium</Link>
+          <Link to="/mobile" className="hover:text-white transition">Mobile</Link>
+          <Link to="/eaglercraft" className="hover:text-white transition">Eaglercraft</Link>
+          <Link to="/admin" className="hover:text-white transition">Admin</Link>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="text-center md:text-right text-sm">
+          <p>© {new Date().getFullYear()} Glora Hub</p>
+          <p className="text-white/40">All rights reserved.</p>
+        </div>
+
+      </div>
+    </footer>
+  );
+}
+import Footer from "./components/Footer";
+<BrowserRouter>
+  <Navbar />
+  <Routes>
+    ...
+  </Routes>
+  <Footer />
+</BrowserRouter>
+import React from "react";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+
+export default function Layout({ children }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-black text-white">
+
+      {/* NAVBAR */}
+      <Navbar />
+
+      {/* PAGE CONTENT */}
+      <main className="flex-1 pt-24 px-4 md:px-8">
+        {children}
+      </main>
+
+      {/* FOOTER */}
+      <Footer />
+    </div>
+  );
+}
+import Layout from "./components/Layout";
+<BrowserRouter>
+  <Layout>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/games" element={<GameCenter />} />
+      <Route path="/premium" element={<PremiumGameCenter />} />
+      <Route path="/mobile" element={<MobileGames />} />
+      <Route path="/eaglercraft" element={<Eaglercraft />} />
+      <Route path="/admin" element={<AdminConsole />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </Layout>
+</BrowserRouter>
+import React, { useEffect, useState } from "react";
+
+export default function LoadingScreen() {
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFadeOut(true), 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      className={`fixed inset-0 flex items-center justify-center bg-black transition-opacity duration-700 z-50 ${
+        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+    >
+      <div className="flex flex-col items-center gap-4">
+        {/* SPINNER */}
+        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+
+        {/* TEXT */}
+        <p className="text-white/70 text-lg font-medium tracking-wide">
+          Loading Glora Hub…
+        </p>
+      </div>
+    </div>
+  );
+}
+
+import React from "react";
+import { motion } from "framer-motion";
+
+export default function PageTransition({ children }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="w-full h-full"
+    >
+      {children}
+    </motion.div>
+  );
+}
+npm install framer-motion
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import Layout from "./components/Layout";
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/games" element={<PageTransition><GameCenter /></PageTransition>} />
+        <Route path="/premium" element={<PageTransition><PremiumGameCenter /></PageTransition>} />
+        <Route path="/mobile" element={<PageTransition><MobileGames /></PageTransition>} />
+        <Route path="/eaglercraft" element={<PageTransition><Eaglercraft /></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><AdminConsole /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Layout>
+        <AnimatedRoutes />
+      </Layout>
+    </BrowserRouter>
+  );
+}
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+
+export default function Sidebar({ open, onClose }) {
+  const { pathname } = useLocation();
+
+  const linkClass = (path) =>
+    `block px-4 py-3 rounded-lg transition ${
+      pathname === path
+        ? "bg-white/20 text-white"
+        : "text-white/60 hover:text-white hover:bg-white/10"
+    }`;
+
+  return (
+    <>
+      {/* BACKDROP */}
+      {open && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <motion.div
+        initial={{ x: -260 }}
+        animate={{ x: open ? 0 : -260 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="fixed top-0 left-0 h-full w-60 bg-black/70 backdrop-blur-xl border-r border-white/10 z-50 p-6 flex flex-col gap-4"
+      >
+        <h2 className="text-2xl font-bold text-white mb-4">Menu</h2>
+
+        <Link to="/" className={linkClass("/")} onClick={onClose}>Home</Link>
+        <Link to="/games" className={linkClass("/games")} onClick={onClose}>Games</Link>
+        <Link to="/premium" className={linkClass("/premium")} onClick={onClose}>Premium</Link>
+        <Link to="/mobile" className={linkClass("/mobile")} onClick={onClose}>Mobile</Link>
+        <Link to="/eaglercraft" className={linkClass("/eaglercraft")} onClick={onClose}>import React, { useState } from "react";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import Sidebar from "./Sidebar";
+
+export default function Layout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-black text-white">
+
+      {/* SIDEBAR */}
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* NAVBAR */}
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+
+      {/* PAGE CONTENT */}
+      <main className="flex-1 pt-24 px-4 md:px-8">
+        {children}
+      </main>
+
+      {/* FOOTER */}
+      <Footer />
+    </div>
+  );
+}
+export default function Navbar({ onMenuClick }) {
+<button
+  onClick={onMenuClick}
+  className="md:hidden text-white/70 hover:text-white text-2xl"
+>
+  ☰
+</button>
+import React, { createContext, useContext, useState, useEffect } from "react";
+
+const AuthContext = createContext();
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+
+  // Load saved session
+  useEffect(() => {
+    const saved = localStorage.getItem("glora_user");
+    if (saved) setUser(JSON.parse(saved));
+  }, []);
+
+  // Save session
+  useEffect(() => {
+    if (user) localStorage.setItem("glora_user", JSON.stringify(user));
+    else localStorage.removeItem("glora_user");
+  }, [user]);
+
+  const login = (email, password) => {
+    // Mock login
+    const mockUser = {
+      email,
+      role: email === "admin@glora.com" ? "admin" : "user",
+    };
+    setUser(mockUser);
+    return mockUser;
+  };
+
+  const signup = (email, password) => {
+    const newUser = { email, role: "user" };
+    setUser(newUser);
+    return newUser;
+  };
+
+  const logout = () => setUser(null);
+
+  return (
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+import { AuthProvider } from "./context/AuthContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </React.StrictMode>
+);
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    login(email, password);
+    navigate("/");
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <form
+        onSubmit={submit}
+        className="bg-white/10 border border-white/20 p-8 rounded-xl w-full max-w-md"
+      >
+        <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full mb-4 p-3 rounded bg-white/10 border border-white/20"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full mb-6 p-3 rounded bg-white/10 border border-white/20"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold">
+          Login
+        </button>
+      </form>
+    </div>
+  );
+}
+import Login from "./pages/Login";
+
+<Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+import { useAuth } from "../context/AuthContext";
+
+export default function Navbar({ onMenuClick }) {
+  const { user, logout } = useAuth();
+{user ? (
+  <button onClick={logout} className="text-white/60 hover:text-white">
+    Logout
+  </button>
+) : (
+  <Link to="/login" className="text-white/60 hover:text-white">
+    Login
+  </Link>
+)}
+const upgradeToPremium = () => {
+  if (!user) return;
+  const updated = { ...user, role: "premium" };
+  setUser(updated);
+};
+<AuthContext.Provider value={{ user, login, signup, logout, upgradeToPremium }}>
+import React from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
+
+export default function PremiumLock({ children }) {
+  const { user } = useAuth();
+
+  if (!user || (user.role !== "premium" && user.role !== "admin")) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <h1 className="text-3xl font-bold mb-4">Premium Required</h1>
+        <p className="text-white/60 max-w-md mb-6">
+          This content is available only to Premium members. Upgrade your account to unlock exclusive games and features.
+        </p>
+
+        <Link
+          to="/upgrade"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+        >
+          Upgrade to Premium
+        </Link>
+      </div>
+    );
+  }
+
+  return children;
+}
+<Route
+  path="/premium"
+  element={
+    <PageTransition>
+      <PremiumLock>
+        <PremiumGameCenter />
+      </PremiumLock>
+    </PageTransition>
+  }
+/>
+import React from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+export default function Upgrade() {
+  const { upgradeToPremium, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleUpgrade = () => {
+    upgradeToPremium();
+    navigate("/premium");
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold mb-4">Upgrade to Premium</h1>
+
+      <p className="text-white/60 max-w-md text-center mb-8">
+        Unlock exclusive games, early access features, and premium-only tools.
+      </p>
+
+      {user ? (
+        <button
+          onClick={handleUpgrade}
+          className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+        >
+          Upgrade Now
+        </button>
+      ) : (
+        <p className="text-white/40">
+          Please log in to upgrade your account.
+        </p>
+      )}
+    </div>
+  );
+}
+import Upgrade from "./pages/Upgrade";
+
+<Route
+  path="/upgrade"
+  element={<PageTransition><Upgrade /></PageTransition>}
+/>
+{user && user.role === "user" && (
+  <Link to="/upgrade" className="text-yellow-400 hover:text-yellow-300 font-bold">
+    Upgrade
+  </Link>
+)}
+import React, { createContext, useContext, useState, useEffect } from "react";
+
+const FeedbackContext = createContext();
+
+export function FeedbackProvider({ children }) {
+  const [feedback, setFeedback] = useState({});
+
+  // Load saved feedback
+  useEffect(() => {
+    const saved = localStorage.getItem("glora_feedback");
+    if (saved) setFeedback(JSON.parse(saved));
+  }, []);
+
+  // Save feedback
+  useEffect(() => {
+    localStorage.setItem("glora_feedback", JSON.stringify(feedback));
+  }, [feedback]);
+
+  const rateGame = (gameId, userEmail, rating) => {
+    setFeedback((prev) => {
+      const game = prev[gameId] || { ratings: {}, comments: [] };
+      return {
+        ...prev,
+        [gameId]: {
+          ...game,
+          ratings: {
+            ...game.ratings,
+            [userEmail]: rating,
+          },
+        },
+      };
+    });
+  };
+
+  const commentOnGame = (gameId, userEmail, text) => {
+    setFeedback((prev) => {
+      const game = prev[gameId] || { ratings: {}, comments: [] };
+      return {
+        ...prev,
+        [gameId]: {
+          ...game,
+          comments: [
+            ...game.comments,
+            {
+              user: userEmail,
+              text,
+              time: Date.now(),
+            },
+          ],
+        },
+      };
+    });
+  };
+
+  return (
+    <FeedbackContext.Provider value={{ feedback, rateGame, commentOnGame }}>
+      {children}
+    </FeedbackContext.Provider>
+  );
+}
+
+export function useFeedback() {
+  return useContext(FeedbackContext);
+}
+import { FeedbackProvider } from "./context/FeedbackContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <FeedbackProvider>
+        <App />
+      </FeedbackProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);
+import React from "react";
+
+export default function RatingStars({ value, onChange }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          onClick={() => onChange(star)}
+          className={`text-2xl transition ${
+            value >= star ? "text-yellow-400" : "text-white/30"
+          }`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+import React, { useState } from "react";
+import { useFeedback } from "../context/FeedbackContext";
+import { useAuth } from "../context/AuthContext";
+
+export default function Comments({ gameId }) {
+  const { feedback, commentOnGame } = useFeedback();
+  const { user } = useAuth();
+  const [text, setText] = useState("");
+
+  const comments = feedback[gameId]?.comments || [];
+
+  const submit = () => {
+    if (!user) return;
+    if (!text.trim()) return;
+    commentOnGame(gameId, user.email, text.trim());
+    setText("");
+  };
+
+  return (
+    <div className="mt-6">
+      <h3 className="text-xl font-bold mb-3">Comments</h3>
+
+      {/* Comment input */}
+      {user ? (
+        <div className="mb-4">
+          <textarea
+            className="w-full p-3 bg-white/10 border border-white/20 rounded-lg"
+            rows="3"
+            placeholder="Write a comment..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button
+            onClick={submit}
+            className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg"
+          >
+            Post Comment
+          </button>
+        </div>
+      ) : (
+        <p className="text-white/40">Log in to comment.</p>
+      )}
+
+      {/* Comment list */}
+      <div className="flex flex-col gap-4">
+        {comments.length === 0 && (
+          <p className="text-white/40">No comments yet.</p>
+        )}
+
+        {comments.map((c, i) => (
+          <div
+            key={i}
+            className="bg-white/5 border border-white/10 p-3 rounded-lg"
+          >
+            <p className="text-white/80">{c.text}</p>
+            <p className="text-white/30 text-sm mt-1">
+              {c.user} • {new Date(c.time).toLocaleString()}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+import RatingStars from "../components/RatingStars";
+import Comments from "../components/Comments";
+import { useFeedback } from "../context/FeedbackContext";
+import { useAuth } from "../context/AuthContext";
+const { feedback, rateGame } = useFeedback();
+const { user } = useAuth();
+
+const currentRating = feedback[game.id]?.ratings[user?.email] || 0;
+
+<RatingStars
+  value={currentRating}
+  onChange={(value) => user && rateGame(game.id, user.email, value)}
+/>
+
+<Comments gameId={game.id} />
+import React from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
+
+export default function AdminLock({ children }) {
+  const { user } = useAuth();
+
+  if (!user || user.role !== "admin") {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <h1 className="text-3xl font-bold mb-4">Admin Access Only</h1>
+        <p className="text-white/60 max-w-md mb-6">
+          You must be an administrator to access this page.
+        </p>
+
+        <Link
+          to="/"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+        >
+          Return Home
+        </Link>
+      </div>
+    );
+  }
+
+  return children;
+}
+import AdminLock from "./components/AdminLock";
+<Route
+  path="/admin"
+  element={
+    <PageTransition>
+      <AdminLock>
+        <AdminConsole />
+      </AdminLock>
+    </PageTransition>
+  }
+/>
+role: "admin"
+{user?.role === "admin" && (
+  <span className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm font-bold">
+    ADMIN
+  </span>
+)}
+role: "admin"
+{ email, role }
+const signup = (email, password) => {
+  const newUser = {
+    email,
+    role: "user",
+    displayName: email.split("@")[0],
+    avatar: null,
+    bio: "",
+    joinDate: Date.now(),
+  };
+  setUser(newUser);
+  return newUser;
+};
+const updateProfile = (updates) => {
+  if (!user) return;
+  const updated = { ...user, ...updates };
+  setUser(updated);
+};
+<AuthContext.Provider value={{ user, login, signup, logout, upgradeToPremium, updateProfile }}>
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
+export default function Profile() {
+  const { user, updateProfile } = useAuth();
+
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
+  const [bio, setBio] = useState(user?.bio || "");
+  const [avatar, setAvatar] = useState(user?.avatar || "");
+
+  const save = () => {
+    updateProfile({ displayName, bio, avatar });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white/5 border border-white/10 rounded-xl">
+
+      <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+
+      {/* Avatar */}
+      <div className="flex items-center gap-4 mb-6">
+        <img
+          src={avatar || "https://i.imgur.com/4ZQZ4Zy.png"}
+          alt="avatar"
+          className="w-20 h-20 rounded-full object-cover border border-white/20"
+        />
+        <input
+          type="text"
+          placeholder="Avatar image URL"
+          className="flex-1 p-3 bg-white/10 border border-white/20 rounded-lg"
+          value={avatar}
+          onChange={(e) => setAvatar(e.target.value)}
+        />
+      </div>
+
+      {/* Display Name */}
+      <label className="block mb-2 text-white/70">Display Name</label>
+      <input
+        type="text"
+        className="w-full p-3 mb-6 bg-white/10 border border-white/20 rounded-lg"
+        value={displayName}
+        onChange={(e) => setDisplayName(e.target.value)}
+      />
+
+      {/* Bio */}
+      <label className="block mb-2 text-white/70">Bio</label>
+      <textarea
+        className="w-full p-3 mb-6 bg-white/10 border border-white/20 rounded-lg"
+        rows="4"
+        value={bio}
+        onChange={(e) => setBio(e.target.value)}
+      />
+
+      <button
+        onClick={save}
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+      >
+        Save Changes
+      </button>
+    </div>
+  );
+}
+import Profile from "./pages/Profile";
+
+<Route
+  path="/profile"
+  element={<PageTransition><Profile /></PageTransition>}
+/>
+{user && (
+  <Link to="/profile" className="text-white/60 hover:text-white">
+    Profile
+  </Link>
+)}
+{user && (
+  <Link to="/profile">
+    <img
+      src={user.avatar || "https://i.imgur.com/4ZQZ4Zy.png"}
+      className="w-8 h-8 rounded-full border border-white/20"
+    />
+  </Link>
+)}
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+
+const FavoritesContext = createContext();
+
+export function FavoritesProvider({ children }) {
+  const { user } = useAuth();
+  const [favorites, setFavorites] = useState({});
+
+  // Load saved favorites
+  useEffect(() => {
+    const saved = localStorage.getItem("glora_favorites");
+    if (saved) setFavorites(JSON.parse(saved));
+  }, []);
+
+  // Save favorites
+  useEffect(() => {
+    localStorage.setItem("glora_favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = (gameId) => {
+    if (!user) return;
+
+    setFavorites((prev) => {
+      const userFavs = prev[user.email] || [];
+      const updated = userFavs.includes(gameId)
+        ? userFavs.filter((id) => id !== gameId)
+        : [...userFavs, gameId];
+
+      return {
+        ...prev,
+        [user.email]: updated,
+      };
+    });
+  };
+
+  const isFavorite = (gameId) => {
+    if (!user) return false;
+    return favorites[user.email]?.includes(gameId) || false;
+  };
+
+  const getUserFavorites = () => {
+    if (!user) return [];
+    return favorites[user.email] || [];
+  };
+
+  return (
+    <FavoritesContext.Provider
+      value={{ toggleFavorite, isFavorite, getUserFavorites }}
+    >
+      {children}
+    </FavoritesContext.Provider>
+  );
+}
+
+export function useFavorites() {
+  return useContext(FavoritesContext);
+}
+import { FavoritesProvider } from "./context/FavoritesContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <FeedbackProvider>
+        <FavoritesProvider>
+          <App />
+        </FavoritesProvider>
+      </FeedbackProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);
+import { useFavorites } from "../context/FavoritesContext";
+const { toggleFavorite, isFavorite } = useFavorites();
+<button
+  onClick={() => toggleFavorite(game.id)}
+  className="text-2xl transition"
+>
+  {isFavorite(game.id) ? "❤️" : "🤍"}
+</button>
+import React from "react";
+import { useFavorites } from "../context/FavoritesContext";
+import { games } from "../data/games"; // or wherever your game list is stored
+
+export default function Favorites() {
+  const { getUserFavorites } = useFavorites();
+  const favIds = getUserFavorites();
+  const favGames = games.filter((g) => favIds.includes(g.id));
+
+  return (
+    <div className="p-6">
+      <h1 className="text-4xl font-bold mb-6">Your Favorites</h1>
+
+      {favGames.length === 0 && (
+        <p className="text-white/40">You haven't saved any games yet.</p>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {favGames.map((game) => (
+          <div
+            key={game.id}
+            className="bg-white/5 border border-white/10 p-4 rounded-xl"
+          >
+            <img
+              src={game.thumbnail}
+              alt={game.title}
+              className="w-full h-40 object-cover rounded-lg mb-3"
+            />
+            <h2 className="text-xl font-bold">{game.title}</h2>
+            <p className="text-white/50 text-sm">{game.category}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+import Favorites from "./pages/Favorites";
+
+<Route
+  path="/favorites"
+  element={<PageTransition><Favorites /></PageTransition>}
+/>
+{user && (
+  <Link to="/favorites" className="text-white/60 hover:text-white">
+    Favorites
+  </Link>
+)}
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+
+const NotificationsContext = createContext();
+
+export function NotificationsProvider({ children }) {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState({});
+
+  // Load saved notifications
+  useEffect(() => {
+    const saved = localStorage.getItem("glora_notifications");
+    if (saved) setNotifications(JSON.parse(saved));
+  }, []);
+
+  // Save notifications
+  useEffect(() => {
+    localStorage.setItem("glora_notifications", JSON.stringify(notifications));
+  }, [notifications]);
+
+  const addNotification = (email, message) => {
+    setNotifications((prev) => {
+      const userNotes = prev[email] || [];
+      return {
+        ...prev,
+        [email]: [
+          {
+            id: Date.now(),
+            message,
+            time: Date.now(),
+            read: false,
+          },
+          ...userNotes,
+        ],
+      };
+    });
+  };
+
+  const markAsRead = (email, id) => {
+    setNotifications((prev) => {
+      const userNotes = prev[email] || [];
+      return {
+        ...prev,
+        [email]: userNotes.map((n) =>
+          n.id === id ? { ...n, read: true } : n
+        ),
+      };
+    });
+  };
+
+  const clearAll = (email) => {
+    setNotifications((prev) => ({
+      ...prev,
+      [email]: [],
+    }));
+  };
+
+  const getUserNotifications = () => {
+    if (!user) return [];
+    return notifications[user.email] || [];
+  };
+
+  return (
+    <NotificationsContext.Provider
+      value={{ addNotification, markAsRead, clearAll, getUserNotifications }}
+    >
+      {children}
+    </NotificationsContext.Provider>
+  );
+}
+
+export function useNotifications() {
+  return useContext(NotificationsContext);
+}
+import { NotificationsProvider } from "./context/NotificationsContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <FeedbackProvider>
+        <FavoritesProvider>
+          <NotificationsProvider>
+            <App />
+          </NotificationsProvider>
+        </FavoritesProvider>
+      </FeedbackProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);
+import { useNotifications } from "../context/NotificationsContext";
+import { useAuth } from "../context/AuthContext";
+const { user } = useAuth();
+const { getUserNotifications } = useNotifications();
+
+const unreadCount = user
+  ? getUserNotifications().filter((n) => !n.read).length
+  : 0;
+{user && (
+  <Link to="/notifications" className="relative text-2xl text-white/70 hover:text-white">
+    🔔
+    {unreadCount > 0 && (
+      <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+        {unreadCount}
+      </span>
+    )}
+  </Link>
+)}
+import React from "react";
+import { useNotifications } from "../context/NotificationsContext";
+import { useAuth } from "../context/AuthContext";
+
+export default function Notifications() {
+  const { user } = useAuth();
+  const { getUserNotifications, markAsRead, clearAll } = useNotifications();
+
+  const notes = getUserNotifications();
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-4xl font-bold mb-6">Notifications</h1>
+
+      {notes.length === 0 && (
+        <p className="text-white/40">You have no notifications.</p>
+      )}
+
+      <div className="flex justify-end mb-4">
+        {notes.length > 0 && (
+          <button
+            onClick={() => clearAll(user.email)}
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg"
+          >
+            Clear All
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {notes.map((n) => (
+          <div
+            key={n.id}
+            className={`p-4 rounded-lg border ${
+              n.read
+                ? "bg-white/5 border-white/10"
+                : "bg-blue-600/20 border-blue-500"
+            }`}
+          >
+            <p className="text-white/90">{n.message}</p>
+            <p className="text-white/40 text-sm mt-1">
+              {new Date(n.time).toLocaleString()}
+            </p>
+
+            {!n.read && (
+              <button
+                onClick={() => markAsRead(user.email, n.id)}
+                className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm"
+              >
+                Mark as Read
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+import Notifications from "./pages/Notifications";
+
+<Route
+  path="/notifications"
+  element={<PageTransition><Notifications /></PageTransition>}
+/>
+addNotification(user.email, "Your profile was updated.");
+addNotification(user.email, `You added ${game.title} to your favorites.`);
+addNotification(userEmail, "Your game suggestion was approved!");
+addNotification(user.email, "Welcome to Premium! Enjoy your new perks.");
+const [users, setUsers] = useState({});
+useEffect(() => {
+  const saved = localStorage.getItem("glora_users");
+  if (saved) setUsers(JSON.parse(saved));
+}, []);
+useEffect(() => {
+  localStorage.setItem("glora_users", JSON.stringify(users));
+}, [users]);
+const signup = (email, password) => {
+  const newUser = {
+    email,
+    role: "user",
+    displayName: email.split("@")[0],
+    avatar: null,
+    bio: "",
+    joinDate: Date.now(),
+  };
+
+  setUser(newUser);
+  setUsers((prev) => ({ ...prev, [email]: newUser }));
+  return newUser;
+};
+const updateProfile = (updates) => {
+  if (!user) return;
+
+  const updated = { ...user, ...updates };
+  setUser(updated);
+
+  setUsers((prev) => ({
+    ...prev,
+    [user.email]: updated,
+  }));
+};
+const getUserByEmail = (email) => users[email] || null;
+<AuthContext.Provider value={{
+  user, users, login, signup, logout,
+  upgradeToPremium, updateProfile, getUserByEmail
+}}>
+import React from "react";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoritesContext";
+import { useFeedback } from "../context/FeedbackContext";
+import { games } from "../data/games";
+
+export default function PublicProfile() {
+  const { email } = useParams();
+  const { getUserByEmail } = useAuth();
+  const { getUserFavorites } = useFavorites();
+  const { feedback } = useFeedback();
+
+  const profile = getUserByEmail(email);
+
+  if (!profile) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <h1 className="text-3xl font-bold">User Not Found</h1>
+      </div>
+    );
+  }
+
+  const favIds = getUserFavorites(email);
+  const favGames = games.filter((g) => favIds.includes(g.id));
+
+  const userComments = Object.values(feedback)
+    .flatMap((g) =>
+      g.comments?.filter((c) => c.user === email).map((c) => ({
+        ...c,
+        gameId: g.id,
+      })) || []
+    );
+
+  return (
+    <div className="max-w-3xl mx-auto p-6">
+      {/* Header */}
+      <div className="flex items-center gap-6 mb-8">
+        <img
+          src={profile.avatar || "https://i.imgur.com/4ZQZ4Zy.png"}
+          className="w-24 h-24 rounded-full border border-white/20 object-cover"
+        />
+        <div>
+          <h1 className="text-4xl font-bold">{profile.displayName}</h1>
+          <p className="text-white/50">{profile.email}</p>
+          <p className="text-white/40 text-sm mt-1">
+            Joined {new Date(profile.joinDate).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Bio */}
+      {profile.bio && (
+        <p className="text-white/70 mb-8">{profile.bio}</p>
+      )}
+
+      {/* Favorites */}
+      <h2 className="text-2xl font-bold mb-4">Favorite Games</h2>
+      {favGames.length === 0 ? (
+        <p className="text-white/40 mb-8">No favorites yet.</p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          {favGames.map((g) => (
+            <div key={g.id} className="bg-white/5 p-3 rounded-lg border border-white/10">
+              <img src={g.thumbnail} className="w-full h-28 object-cover rounded mb-2" />
+              <p className="font-bold">{g.title}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Comments */}
+      <h2 className="text-2xl font-bold mb-4">Comments</h2>
+      {userComments.length === 0 ? (
+        <p className="text-white/40">No comments yet.</p>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {userComments.map((c, i) => (
+            <div key={i} className="bg-white/5 p-4 rounded-lg border border-white/10">
+              <p className="text-white/80">{c.text}</p>
+              <p className="text-white/40 text-sm mt-1">
+                On game ID {c.gameId} • {new Date(c.time).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+import PublicProfile from "./pages/PublicProfile";
+
+<Route
+  path="/user/:email"
+  element={<PageTransition><PublicProfile /></PageTransition>}
+/>
+<Link to={`/user/${comment.user}`} className="text-blue-400 hover:underline">
+  {comment.user}
+</Link>
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+
+const AchievementsContext = createContext();
+
+export function AchievementsProvider({ children }) {
+  const { user } = useAuth();
+  const [data, setData] = useState({});
+
+  // Load saved data
+  useEffect(() => {
+    const saved = localStorage.getItem("glora_achievements");
+    if (saved) setData(JSON.parse(saved));
+  }, []);
+
+  // Save data
+  useEffect(() => {
+    localStorage.setItem("glora_achievements", JSON.stringify(data));
+  }, [data]);
+
+  const getUserData = (email) => {
+    return data[email] || { xp: 0, achievements: [] };
+  };
+
+  const addXP = (email, amount) => {
+    setData((prev) => {
+      const userData = prev[email] || { xp: 0, achievements: [] };
+      return {
+        ...prev,
+        [email]: {
+          ...userData,
+          xp: userData.xp + amount,
+        },
+      };
+    });
+  };
+
+  const unlockAchievement = (email, achievementId) => {
+    setData((prev) => {
+      const userData = prev[email] || { xp: 0, achievements: [] };
+      if (userData.achievements.includes(achievementId)) return prev;
+
+      return {
+        ...prev,
+        [email]: {
+          ...userData,
+          achievements: [...userData.achievements, achievementId],
+        },
+      };
+    });
+  };
+
+  const getLevel = (xp) => {
+    return Math.floor(xp / 100) + 1; // 100 XP per level
+  };
+
+  return (
+    <AchievementsContext.Provider
+      value={{ getUserData, addXP, unlockAchievement, getLevel }}
+    >
+      {children}
+    </AchievementsContext.Provider>
+  );
+}
+
+export function useAchievements() {
+  return useContext(AchievementsContext);
+}
+import { AchievementsProvider } from "./context/AchievementsContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <FeedbackProvider>
+        <FavoritesProvider>
+          <NotificationsProvider>
+            <AchievementsProvider>
+              <App />
+            </AchievementsProvider>
+          </NotificationsProvider>
+        </FavoritesProvider>
+      </FeedbackProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);
+export const achievements = [
+  {
+    id: "first_login",
+    title: "Welcome to Glora!",
+    description: "Logged in for the first time.",
+    xp: 50,
+  },
+  {
+    id: "first_favorite",
+    title: "Taste of Favorites",
+    description: "Added your first favorite game.",
+    xp: 30,
+  },
+  {
+    id: "first_comment",
+    title: "Voice Heard",
+    description: "Posted your first comment.",
+    xp: 40,
+  },
+  {
+    id: "premium_upgrade",
+    title: "Premium Member",
+    description: "Upgraded to premium.",
+    xp: 100,
+  },
+  {
+    id: "admin_badge",
+    title: "Administrator",
+    description: "Granted admin privileges.",
+    xp: 200,
+  },
+];
+unlockAchievement(user.email, "first_login");
+addXP(user.email, 50);
+unlockAchievement(user.email, "first_favorite");
+addXP(user.email, 30);
+unlockAchievement(user.email, "first_comment");
+addXP(user.email, 40);
+unlockAchievement(user.email, "premium_upgrade");
+addXP(user.email, 100);
+unlockAchievement(user.email, "admin_badge");
+addXP(user.email, 200);
+import { useAchievements } from "../context/AchievementsContext";
+import { achievements } from "../data/achievements";
+const { getUserData, getLevel } = useAchievements();
+const userData = getUserData(email);
+const level = getLevel(userData.xp);
+<h2 className="text-2xl font-bold mb-2">Level {level}</h2>
+<p className="text-white/50 mb-6">{userData.xp} XP</p>
+
+<h2 className="text-2xl font-bold mb-4">Achievements</h2>
+
+{userData.achievements.length === 0 ? (
+  <p className="text-white/40">No achievements yet.</p>
+) : (
+  <div className="flex flex-col gap-3">
+    {userData.achievements.map((id) => {
+      const a = achievements.find((x) => x.id === id);
+      return (
+        <div key={id} className="bg-white/5 p-4 rounded-lg border border-white/10">
+          <h3 className="text-xl font-bold">{a.title}</h3>
+          <p className="text-white/60">{a.description}</p>
+          <p className="text-yellow-400 text-sm mt-1">+{a.xp} XP</p>
+        </div>
+      );
+    })}
+  </div>
+)}
